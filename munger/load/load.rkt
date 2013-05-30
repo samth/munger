@@ -5,9 +5,9 @@
 
 (require
  racket/match 
- (only-in type/list
+ (only-in grip/data/list
           zip)
- (only-in system/filepath
+ (only-in grip/system/filepath
 	  FilePath FilePath->string)
  (only-in "schema.rkt"
           generate-anon-series-names

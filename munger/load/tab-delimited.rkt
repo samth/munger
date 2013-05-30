@@ -8,13 +8,12 @@
  "../frame/frame.rkt"
  racket/match
  racket/pretty
- (only-in system/filepath
+ (only-in grip/system/filepath
 	  FilePath FilePath->string)
- (only-in iteratee
-	  enumerator/text-input-port
-	  Iteratee Stream Continue Done
-	  icomplete
-	  head-n)
+ (only-in grip/control/datahose/datahose
+	  pump/text-input-port
+	  Tank Stream Continue Done
+	  drain head-n)
  (only-in "../frame/categorical-series-builder.rkt"
 	  CSeriesBuilder
 	  CSeriesBuilder?
@@ -41,7 +40,7 @@
 	  determine-Schema
 	  Schema))
 
-(: tab-record-iteratee (FrameBuilder -> (Iteratee String FrameBuilder)))
+(: tab-record-iteratee (FrameBuilder -> (Tank String FrameBuilder)))
 (define (tab-record-iteratee frame-builder)
 
   (: appenders (Listof (String -> Void)))
@@ -59,7 +58,7 @@
 			      [else (λ: ((str : String)) (void))]))
 			 (FrameBuilder-builders frame-builder)))
 
-  (: step ((Stream String) -> (Iteratee String FrameBuilder)))
+  (: step ((Stream String) -> (Tank String FrameBuilder)))
   (define (step input)
     (match input
 	   ['Nothing (Continue step)]
@@ -85,8 +84,8 @@
      fpath
      (λ: ((inp : Input-Port))
 	 (when headers (read-line inp))
-	 (icomplete (((inst enumerator/text-input-port FrameBuilder) inp)
-		     (tab-record-iteratee builder)))))))
+	 (drain (((inst pump/text-input-port FrameBuilder) inp)
+		 (tab-record-iteratee builder)))))))
 
 (: sample-tab-delimited-file (FilePath Integer -> Schema))
 (define (sample-tab-delimited-file fpath cnt)
@@ -95,5 +94,5 @@
     (call-with-input-file*
      fpath
      (λ: ((inp : Input-Port))
-	 (determine-Schema (icomplete (((inst enumerator/text-input-port (Listof String)) inp)
-				       ((inst head-n String) cnt))))))))
+	 (determine-Schema (drain (((inst pump/text-input-port (Listof String)) inp)
+				   ((inst head-n String) cnt))))))))
