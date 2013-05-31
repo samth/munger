@@ -53,8 +53,7 @@
           GSeries SIndex
           build-index-from-labels label-index)
  (only-in "series-description.rkt"
-          series-count
-          series-type
+	  series-description series-count series-type
           Series 
           SeriesDescription SeriesDescription-name
           SeriesDescription-type SeriesDescription-count)
@@ -99,7 +98,10 @@
 	     (unless (andmap (λ: ((s : (Pair Symbol Series)))
 				 (eq? len (series-count (cdr s))))
 			     (cdr cols))
-		     (error 'new-frame "Frame must have equal length series.")))))
+		     (error 'new-frame "Frame must have equal length series: ~a" 
+			    (map (λ: ((s : (Pair Symbol Series)))
+				     (series-description (car s) (cdr s)))
+				 cols))))))
   
   (check-equal-length)
   (let ((index (build-index-from-labels ((inst map Label Column)
