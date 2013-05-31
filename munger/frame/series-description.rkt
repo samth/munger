@@ -5,6 +5,7 @@
  Series SeriesType)
 
 (provide:
+ [series-description (Label Series -> SeriesDescription)]
  [series-type (Series -> SeriesType)]
  [series-count (Series -> Index)])
 
@@ -27,7 +28,7 @@
 
 (struct: SeriesDescription ([name : Label]
                             [type : SeriesType]
-                            [count : Integer]))
+                            [count : Integer]) #:transparent)
 
 (: series-type (Series -> SeriesType))
 (define (series-type series)
@@ -47,3 +48,6 @@
    [(ISeries? series) (iseries-count series)]
    [else (error "Unknown Series type in Frame")]))
       
+(: series-description  (Label Series -> SeriesDescription))
+(define (series-description name series)
+  (SeriesDescription name (series-type series) (series-count series)))
