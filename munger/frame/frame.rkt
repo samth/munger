@@ -22,6 +22,7 @@
  [column-heading (Column -> Label)]
  [column-series (Column -> Series)]
  [frame-rename (Frame Label Label -> Frame)]
+ [frame-project (Frame LabelProjection -> Frame)]
  [frame-drop (Frame Label -> Frame)]
  [frame-remove (Frame LabelProjection -> Frame)]
  [frame-explode (Frame [#:project LabelProjection] -> Columns)]
@@ -241,6 +242,10 @@
   (define drop-labels (projection-set drop-projection))
   (define keep-labels (set-subtract all-labels drop-labels))
   (new-frame (frame-explode frame #:project keep-labels)))
+
+(: frame-project (Frame LabelProjection -> Frame))
+(define (frame-project frame projection)
+  (new-frame (frame-explode frame #:project (projection-set projection))))
 
 (: frame-replace (Frame Column -> Frame))
 (define (frame-replace frame new-col)

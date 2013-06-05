@@ -231,13 +231,7 @@
 					 (set-intersect (list->set cols)
 							(set-intersect cols-a cols-b))))
 
-  (pretty-print cols-a)
-  (pretty-print cols-b)
-  (pretty-print join-cols)
-
   (define: non-key-common : (Setof Label) (set-subtract (set-intersect cols-a cols-b) join-cols))
-
-  (pretty-print non-key-common)
 
   (when (null? join-cols)
 	(error "No common columns between frames to join on."))
@@ -246,9 +240,6 @@
 
   (define: fa-cols : (Listof Column) (frame-cols fa '()))
   (define: fb-cols : (Listof Column) (frame-cols fb non-key-fb))
-
-  (pretty-print fa-cols)
-  (pretty-print fb-cols)
 
   (define: fb-index : JoinHash
     (let ((cols (key-cols-sort-lexical (frame-cols fb join-cols))))
