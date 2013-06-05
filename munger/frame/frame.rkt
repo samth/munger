@@ -19,6 +19,7 @@
 #lang typed/racket/base
 
 (provide:
+ [column (Label Series -> Column)]
  [column-heading (Column -> Label)]
  [column-series (Column -> Series)]
  [frame-rename (Frame Label Label -> Frame)]
@@ -79,6 +80,10 @@
 (struct: FrameDescription ([dimensions : Dim]
                            [series : (Listof SeriesDescription)]))
 
+
+(: column (Label Series -> Column))
+(define (column label series)
+  (cons label series))
 
 (: column-heading (Column -> Label))
 (define (column-heading col)
