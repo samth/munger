@@ -3,7 +3,7 @@
 (provide:
  [nseries-ref (NSeries Index -> Float)]
  [nseries-label-ref (NSeries Label -> Float)]
- [nseries-count (NSeries -> Index)]
+ [nseries-count (NSeries -> Index)] 
  [map/ns (NSeries (Float -> Float) -> NSeries)]
  [bop/ns (NSeries NSeries (Float Float -> Float) -> NSeries)]
  [+/ns (NSeries NSeries -> NSeries)]
@@ -23,7 +23,7 @@
  map/ns)
 
 (require
- racket/fixnum
+ racket/unsafe/ops
  racket/flonum
  (only-in "settings.rkt"
 	  Settings-decimals
@@ -127,7 +127,7 @@
   
   (define: v-bop : FlVector(make-flvector len))
 
-  (do: : NSeries ([idx : Fixnum 0 (fx+ idx #{1 : Fixnum})])
+  (do: : NSeries ([idx : Fixnum 0 (unsafe-fx+ idx #{1 : Fixnum})])
        ((= idx len) (NSeries #f v-bop))
        (bop (flvector-ref v1 idx)
 	    (flvector-ref v2 idx))))
@@ -155,7 +155,7 @@
   (define v1 (NSeries-data ns))
   (define: len : Index (flvector-length v1))
   (define v-bop (make-flvector len))
-  (do: : NSeries ([idx : Fixnum 0 (fx+ idx 1)])
+  (do: : NSeries ([idx : Fixnum 0 (unsafe-fx+ idx 1)])
        ((= idx len) (NSeries #f v-bop))
        (bop fl (flvector-ref v1 idx))))
 
