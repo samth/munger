@@ -129,8 +129,8 @@
 
   (do: : NSeries ([idx : Fixnum 0 (unsafe-fx+ idx #{1 : Fixnum})])
        ((= idx len) (NSeries #f v-bop))
-       (bop (flvector-ref v1 idx)
-	    (flvector-ref v2 idx))))
+       (flvector-set! v-bop idx (bop (flvector-ref v1 idx)
+				 (flvector-ref v2 idx)))))
 
 (: +/ns (NSeries NSeries -> NSeries))
 (define (+/ns ns1 ns2)
@@ -154,10 +154,10 @@
 (define (bop./ns fl ns bop)
   (define v1 (NSeries-data ns))
   (define: len : Index (flvector-length v1))
-  (define v-bop (make-flvector len))
+  (define: v-bop : FlVector (make-flvector len))
   (do: : NSeries ([idx : Fixnum 0 (unsafe-fx+ idx 1)])
        ((= idx len) (NSeries #f v-bop))
-       (bop fl (flvector-ref v1 idx))))
+       (flvector-set! v-bop idx (bop fl (flvector-ref v1 idx)))))
 
 (: +./ns (Float NSeries -> NSeries))
 (define (+./ns fl ns)
