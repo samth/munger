@@ -18,13 +18,21 @@
 
 #lang typed/racket
 
-(require 
- (for-syntax
-  syntax/parse))
+(provide:
+ [read-string-field (Input-Port -> String)]
+ [read-integer-field (Input-Port -> Integer)]
+ [read-float-field (Input-Port -> Float)])
+
+(provide
+ doit)
 
 (: double-quote? (Char -> Boolean))
 (define (double-quote? ch)
   (char=? #\" ch))
+
+(: quote-escape? (Char -> Boolean))
+(define (quote-escape? ch)
+  (char=? #\\ ch))
 
 (: comma-delimiter? (Char -> Boolean))
 (define (comma-delimiter? ch)
@@ -37,73 +45,53 @@
 
 (: eol? (Char Input-Port -> Boolean))
 (define (eol? ch inp)
-  (let ((rs  (eol-delimiter? ch)))
+  (let ((rs (eol-delimiter? ch)))
     (let ((ch (peek-char inp)))
       (and (char? ch)
 	   (eol-delimiter? ch))
       (read-char inp))
     rs))
 
-(define-syntax (read-until stx)
-  (syntax-parse stx
-		((_ in-port:id stop:id)
-		 #'(let loop ()
-		     (let ((ch (peek-char in-port)))
-		       (if (eof-object? ch)
-			   (void)
-			   (if (stop ch)
-			       (void)
-			       (begin
-				 (read-char in-port)
-				 (loop)))))))))
+(: end-of-field (Input-Port -> Void))
+(define (end-of-field inp)
+  (let ((ch (read-char inp)))
+    (unless (or (eof-object? ch)
+		(eol-delimiter? ch)
+		(comma-delimiter? ch))
+	    (error 'end-of-field "Invalid CSV.  Expected a EOF or ',' delimiter."))))
 
-(: toss-whitespace (Input-Port -> Void))
-(define (toss-whitespace inp)
-  (read-until inp char-whitespace?))
+(: read-string-field (Input-Port -> String))
+(define (read-string-field inp)
 
-;; A string field has significant whitespace between ',' delimiters.
-;; It may be quoted.
-;; Internal quotes must be double quoted.
-;; e.g. "    field with white-space with a ""quoted"" internal value     "
-(: read-string-value (Input-Port -> String))
-(define (read-string-value inp)
   (define outp (open-output-string))
 
-  (define quoted (let ((ch (peek-char inp)))
-		   (and (char? ch)
-			(double-quote? ch))))
+  (let ((ch (read-char inp)))
+    (if (eof-object? ch)
+	(error 'read-string-field "Invalid CSV.  Unexpected EOF")
+	(unless (double-quote? ch)
+		(error 'read-string-value "Invalid CSV, string field value must be quoted."))))
 
-  (let: loop : String ((ch : (U Char EOF) (read-char inp)) (in-dquote : Boolean #f))
+  (let: loop : String ((ch : (U Char EOF) (read-char inp)))
 	(if (eof-object? ch)
-	    (if (and quoted in-dquote)
-		(error "Invalid CSV EOF with un-opened quote: ~s" (get-output-string outp))
-		(get-output-string outp))
-	    (cond
-	     ((or (comma-delimiter? ch)
-		  (eol? ch inp))
-	      (if (and quoted in-dquote)
-		  (error "Invalid CSV EOF with un-opened quote: ~s" (get-output-string outp))
-		  (get-output-string outp)))
-	     ((double-quote? ch)
-	      (if quoted
-		  (get-output-string outp)
-		  (if in-dquote
-		      (let ((ch (peek-char inp)))
-			(if (and (char? ch)
-				 (double-quote? ch))
-			    (begin
-			      (write ch outp)
-			      (read-char inp) ;; toss second " in ""
-			      (loop (read-char inp) (not in-dquote)))
-			    (error "Invalid CSV EOF with un-opened quote: ~s" 
-				   (get-output-string outp))))
-		      (error "Invalid CSV EOF with un-opened quote: ~s" (get-output-string outp)))))
-	     (else
-	      (write ch outp)
-	      (loop (read-char inp) in-dquote))))))
+	    (error "Invalid CSV, EOF found in a string field.  Expecting closing quote in: ~s" (get-output-string outp))
+	    (if (double-quote? ch)
+		(let ((next-ch (peek-char inp)))
+		  (if (eof-object? next-ch)
+		      (error "Invalid CSV unexpected EOF.")
+		      (if (double-quote? next-ch)
+			  (begin
+			    (read-char inp)
+			    (display next-ch outp)
+			    (loop (read-char inp)))
+			  (begin
+			    (end-of-field inp)
+			    (get-output-string outp)))))
+		(begin
+		  (display ch outp)
+		  (loop (read-char inp)))))))
 
 (: read-number-string (Input-Port -> String))
-(define (read-number-string inp) 
+(define (read-number-string inp)
   (define outp (open-output-string))
   (let: loop : String ((ch : (U Char EOF) (read-char inp)))
 	(if (eof-object? ch)
@@ -111,13 +99,12 @@
 	    (cond
 	     ((or (char-numeric? ch)
 		  (char=? #\. ch))
-	      (write ch outp)
+	      (display ch outp)
 	      (loop (read-char inp)))
-	     ((or (eol? ch inp)
-		  (comma-delimiter? ch))
+	     ((or (comma-delimiter? ch)
+		  (eol? ch inp))
 	      (get-output-string outp))
-	     (else
-	      (error "Expected integer field: ~s" (get-output-string outp)))))))
+	     (else (error 'read-number-value "Invalid CSV, expected a numeric field."))))))
 
 (: s->i (String -> Integer))
 (define (s->i s)
@@ -133,10 +120,26 @@
 	(real->double-flonum n)
 	(error "Expected Real number field: ~s" s))))
 
-(: read-integer-value (Input-Port -> Integer))
-(define (read-integer-value inp)
+(: read-integer-field (Input-Port -> Integer))
+(define (read-integer-field inp)
   (s->i (read-number-string inp)))
 
-(: read-real-value (Input-Port -> Real))
-(define (read-real-value inp)
+(: read-float-field (Input-Port -> Float))
+(define (read-float-field inp)
   (s->r (read-number-string inp)))
+
+;; WIP Test.
+;; (define (doit)
+;;   (define line "123,\"A\"\"B\"\"C\",1.2\n456,\"Ray\",1.5")
+;;   (define inp (open-input-string line))
+;;   (port-count-lines! inp)
+
+;;   (pretty-print (read-integer-value inp))
+;;   (pretty-print (read-string-value inp))
+;;   (pretty-print (read-float-field inp))
+
+;;   (displayln "----------------------")
+
+;;   (pretty-print (read-integer-value inp))
+;;   (pretty-print (read-string-value inp))
+;;   (pretty-print (read-float-field inp)))
