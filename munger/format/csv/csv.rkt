@@ -23,9 +23,6 @@
  [read-integer-field (Input-Port -> Integer)]
  [read-float-field (Input-Port -> Float)])
 
-(provide
- doit)
-
 (: double-quote? (Char -> Boolean))
 (define (double-quote? ch)
   (char=? #\" ch))
@@ -127,19 +124,3 @@
 (: read-float-field (Input-Port -> Float))
 (define (read-float-field inp)
   (s->r (read-number-string inp)))
-
-;; WIP Test.
-;; (define (doit)
-;;   (define line "123,\"A\"\"B\"\"C\",1.2\n456,\"Ray\",1.5")
-;;   (define inp (open-input-string line))
-;;   (port-count-lines! inp)
-
-;;   (pretty-print (read-integer-value inp))
-;;   (pretty-print (read-string-value inp))
-;;   (pretty-print (read-float-field inp))
-
-;;   (displayln "----------------------")
-
-;;   (pretty-print (read-integer-value inp))
-;;   (pretty-print (read-string-value inp))
-;;   (pretty-print (read-float-field inp)))

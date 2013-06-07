@@ -9,5 +9,6 @@
                 [offset : Natural]
                 [length : Natural]))
 
-(struct: Layout ([name : Symbol]
+(struct: Layout ([name   : Symbol]
+		 [type   : (U 'Fixed 'CSV)]
                  [fields : (Listof Field)]))

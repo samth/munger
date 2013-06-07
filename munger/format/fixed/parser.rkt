@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Ray Racine's Typed Racket Library
+;; Ray Racine's Data Munger Library
 ;; Copyright (C) 2007-2013  Raymond Paul Racine
 ;;
 ;; This program is free software: you can redistribute it and/or modify
