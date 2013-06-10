@@ -1,8 +1,8 @@
 #lang typed/racket
 
-(provide 
- orderheader
- orderline)
+;(provide 
+; orderheader
+; orderline)
 
 (require 
  ;;(for-syntax "layout-types.rkt")
@@ -10,23 +10,23 @@
           Field 
           Layout) 
  (only-in "tabbed/reader.rkt"
-	  string-field)
+          string-field)
  (only-in "tabbed/layout.rkt"
-	  define-tabbed-layout)
+          define-tabbed-layout)
  (only-in "tabbed/parser.rkt"
-	  define-tabbed-parser-for-layout)
+          define-static-tabbed-parser)
  (only-in "fixed/layout.rkt"                   
           define-fixed-layout)
  (only-in "fixed/parser.rkt"
-          define-static-parser-for-layout))
+          define-static-fixed-parser))
 
-(define-tabbed-layout Sales-layout
+(define-tabbed-layout sales-layout
   (date C)
   (dow C)
-  (call F)
-  (web F))
+  (call C)
+  (web C))
 
-(define-tabbed-parser-for-layout (Sales-parser Sales-layout)
+(define-static-tabbed-parser (sales-parser Sales sales-layout)
   (date web))
 
 (define-fixed-layout orderline
@@ -62,5 +62,5 @@
   (order C 10)
   (order-sub C 5))
 
-(define-static-parser-for-layout (oh-parser orderheader-layout)
+(define-static-fixed-parser (oh-parser OrderHeader orderheader-layout)
   (order order-sub))

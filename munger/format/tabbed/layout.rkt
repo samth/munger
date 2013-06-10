@@ -19,65 +19,55 @@
 
 #lang typed/racket/base
 
-(provide 
+(provide
  define-tabbed-layout)
 
-(require  
- (only-in "../layout-types.rkt" 
+(require
+ (only-in "../layout-types.rkt"
 	  Field Layout)
- (for-syntax 
+ (for-syntax
   syntax/parse
   typed/racket
   (only-in racket/syntax
-           format-id)
-  (only-in "../layout-types.rkt" 
-	   Field Layout)))
+	   format-id)
+  (only-in "../layout-types.rkt"
+	   Field Layout)
+  (only-in "../layout.rkt"
+	   tr-type-for-field-type)))
 
 (define-syntax (define-tabbed-layout stx)
-  
+
   (define-syntax-class field
     (pattern (fid:id type:id)))
-  
+
   (: offset : Natural)
   (define offset 0)
-  
+
   (: field (Listof Field))
   (define fields '())
-  
-  (: tr-type-for-field-type (Char -> Symbol))
-  (define (tr-type-for-field-type ftype)
-    (case ftype
-      ((I) 'Integer)
-      ((C) 'String)
-      ((N) 'Number)
-      ((F) 'Float)
-      ((D) 'Date)
-      ((S) 'Symbol)
-      (else 'Nothing)))
-  
-  (define (field-syntax-with-offsets fs)        
-    (for/list ([f fs])
-      (syntax-parse f
-		    ((fid:id ftype:id)
-		     (let ((curr-offset offset))
-		       (with-syntax ((tr-type (tr-type-for-field-type (syntax->datum #'ftype)))
-				     (foffset curr-offset)
-				     (fname (syntax->datum #'fid)))
-			 (set! fields (cons (Field (syntax->datum #'fid)
-						   'String
-						   curr-offset
-						   0)
-					    fields))
-			 (set! offset (add1 offset))
-			 #`(Field 'fname 'tr-type foffset 0)))))))
-  
-  (syntax-parse stx
-		[(_ name:id f0:field f1:field ...)   
-		 (with-syntax ((lo  #`(list #,@(field-syntax-with-offsets 
-						(syntax->list #'(f0 f1 ...)))))
-			       (desc-name (format-id #'name "~a-desc" (syntax-e #'name))))       
-		   (let ((name-id (symbol->string (syntax->datum #'name))))
-		     #'(begin
-			 (define-syntax desc-name (Layout 'name lo))
-			 (define name (Layout 'name lo)))))]))
 
+  (define (field-syntax-with-offsets fs)
+    (for/list ([f fs])
+	      (syntax-parse f
+			    ((fid:id ftype:id)
+			     (let ((curr-offset offset))
+			       (with-syntax ((tr-type (tr-type-for-field-type (syntax->datum #'ftype)))
+					     (foffset curr-offset)
+					     (fname (syntax->datum #'fid)))
+					    (set! fields (cons (Field (syntax->datum #'fid)
+								      'String
+								      curr-offset
+								      0)
+							       fields))
+					    (set! offset (add1 offset))
+					    #`(Field 'fname 'tr-type foffset 0)))))))
+
+  (syntax-parse stx
+		[(_ name:id f0:field f1:field ...)
+		 (with-syntax ((lo  #`(list #,@(field-syntax-with-offsets
+						(syntax->list #'(f0 f1 ...)))))
+			       (desc-name (format-id #'name "~a-desc" (syntax-e #'name))))
+			      (let ((name-id (symbol->string (syntax->datum #'name))))
+				#'(begin
+				    (define-syntax desc-name (Layout 'name 'Tabbed lo))
+				    (define name (Layout 'name 'Tabbed lo)))))]))

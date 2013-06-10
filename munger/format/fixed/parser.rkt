@@ -18,7 +18,7 @@
 
 #lang typed/racket/base
 
-(provide define-static-parser-for-layout)
+(provide define-static-fixed-parser)
 
 (require/typed racket
                [string-trim (String -> String)])
@@ -78,14 +78,11 @@
     (define base (car (regexp-split #rx"-" (symbol->string full-name))))
     (datum->syntax stx (string->symbol base))))
 
-(define-syntax (define-static-parser-for-layout stx)    
+(define-syntax (define-static-fixed-parser stx)    
   (syntax-parse stx
-    [(_ (parser-name:id layout-name:id) (f0:id f1:id ...))
-     (let* ((full-name (syntax-e #'layout-name))
-            (base-name (extract-base-name stx full-name)))       
-       (with-syntax ((desc-name (format-id #'layout-name "~a-desc" full-name))
-                     ;(parser-name (format-id #'layout-name "~a-parser" base-name))
-                     (parser-struct (format-id #'layout-name "~a" base-name)))                 
+    [(_ (parser-name:id structure-name:id layout-name:id) (f0:id f1:id ...))
+     (let ((full-name (syntax-e #'layout-name)))
+       (with-syntax ((desc-name (format-id #'layout-name "~a-desc" full-name)))
          (let ((pfields (fields-to-project 
                          (syntax-local-value #'desc-name)
                          (syntax->list #'(f0 f1 ...)))))                          
@@ -93,8 +90,8 @@
                          (bindings (build-parser-let-bindings pfields))
                          (args (build-ctor-args pfields)))             
              #`(begin
-                 (struct: parser-struct fields)
-                 (define:  parser-name : (String -> parser-struct)
+                 (struct: structure-name fields)
+                 (define:  parser-name : (String -> structure-name)
                    (λ: ((line : String))
                      (let: bindings
-                       (parser-struct #,@#'args)))))))))]))
+                       (structure-name #,@#'args)))))))))]))

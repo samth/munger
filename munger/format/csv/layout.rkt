@@ -30,7 +30,9 @@
   (only-in racket/syntax
 	   format-id)
   (only-in "../layout-types.rkt"
-	   Field Layout)))
+	   Field Layout)
+  (only-in "../layout.rkt"
+	   tr-type-for-field-type)))
 
 (define-syntax (define-csv-layout stx)
 
@@ -39,16 +41,6 @@
 
   (: field (Listof Field))
   (define fields '())
-
-  (: tr-type-for-field-type (Char -> Symbol))
-  (define (tr-type-for-field-type ftype)
-    (case ftype
-      ((I) 'Integer)
-      ((C) 'String)
-      ((N) 'Number)
-      ((D) 'String)
-      ((S) 'Symbol)
-      (else 'Nothing)))
 
   (define (field-syntax fs)
     (for/list ([f fs])

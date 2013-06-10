@@ -1,14 +1,18 @@
 #lang typed/racket/base
 
-(provide 
+(provide
+ LayoutTypeCode LayoutType
  (struct-out Field)
  (struct-out Layout))
 
+(define-type LayoutTypeCode (U 'I 'C 'N 'D 'S))
+(define-type LayoutType (U 'Integer 'String 'Number 'Date 'Symbol))
+
 (struct: Field ([name : Symbol]
-                [type : Symbol]
-                [offset : Natural]
-                [length : Natural]))
+		[type : LayoutType]
+		[offset : Natural]
+		[length : Natural]))
 
 (struct: Layout ([name   : Symbol]
-		 [type   : (U 'Fixed 'CSV)]
-                 [fields : (Listof Field)]))
+		 [type   : (U 'Fixed 'Tabbed 'CSV)]
+		 [fields : (Listof Field)]))
