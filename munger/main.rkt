@@ -19,9 +19,9 @@
 #lang typed/racket/base
 
 (provide
- ;(all-from-out typed/plot/main
  (all-from-out "frame/types.rkt")
  (all-from-out "load/load.rkt")
+ (all-from-out "load/schema-syntax.rkt")
  (all-from-out "load/schema.rkt")
  (all-from-out "frame/indexed-series.rkt")
  (all-from-out "frame/series-description.rkt")
@@ -31,17 +31,16 @@
  (all-from-out "frame/frame-join.rkt")
  (all-from-out "stats/tabulate.rkt")
  (all-from-out "stats/statistics.rkt")
- ;(all-from-out "plot/plot.rkt")
  (all-from-out "frame/integer-series.rkt")
  (all-from-out "frame/numeric-series.rkt")
  (all-from-out "frame/categorical-series.rkt")
  (all-from-out "frame/categorical-series-ops.rkt")
  (all-from-out "frame/gen-nseries.rkt"))
-               
-(require 
- ;typed/plot/main
- (only-in "load/load.rkt"          
-          load-tab-delimited-file)
+
+(require
+ (only-in "load/load.rkt"
+	  load-csv-file
+	  load-tab-delimited-file)
  "frame/types.rkt"
  "frame/frame.rkt"
  "frame/frame-print.rkt"
@@ -51,8 +50,10 @@
  "frame/integer-series.rkt"
  "frame/numeric-series.rkt"
  "frame/categorical-series.rkt"
- "frame/categorical-series-ops.rkt" 
+ "frame/categorical-series-ops.rkt"
  "frame/series-iter.rkt"
+ (only-in "load/schema-syntax.rkt"
+	  schema)
  "stats/tabulate.rkt"
  ;; "plot/plot.rkt"
  "stats/tabulate.rkt"
