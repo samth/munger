@@ -22,7 +22,6 @@
  ;(all-from-out typed/plot/main
  (all-from-out "frame/types.rkt")
  (all-from-out "load/load.rkt")
- (all-from-out "load/tab-delimited.rkt")
  (all-from-out "load/schema.rkt")
  (all-from-out "frame/indexed-series.rkt")
  (all-from-out "frame/series-description.rkt")
@@ -58,8 +57,6 @@
  ;; "plot/plot.rkt"
  "stats/tabulate.rkt"
  "stats/statistics.rkt"
- (only-in "load/tab-delimited.rkt"
-	  sample-tab-delimited-file)
  (only-in "load/schema.rkt"
 	  ColumnInfo
 	  alter-schema-columns
