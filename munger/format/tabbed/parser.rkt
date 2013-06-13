@@ -49,7 +49,7 @@
 	(hash-set! fmap (Field-name f) f))
    fmap)
 
- (: fields-to-project ((Listof Field) (Listof Syntax) -> (Listof Field)))
+ (: fields-to-project (Layout (Listof Syntax) -> (Listof Field)))
  (define (fields-to-project layout fields)
    (define field-dict (hash-fields layout))
    (for/list ([field fields])
@@ -89,15 +89,15 @@
 		[(_ (parser-name:id structure-name:id layout-name:id) (f0:id f1:id ...))
 		 (let* ((full-name (syntax-e #'layout-name)))
 		   (with-syntax ((desc-name (format-id #'layout-name "~a-desc" full-name)))
-				(let ((pfields (fields-to-project
-						(syntax-local-value #'desc-name)
-						(syntax->list #'(f0 f1 ...)))))
+				(let* ((layout-desc (syntax-local-value #'desc-name))
+				       (pfields (fields-to-project layout-desc
+								   (syntax->list #'(f0 f1 ...)))))
 				  (with-syntax ((fields (build-struct-field-syntax pfields))
-						(bindings (build-parser-let-bindings pfields))
+						(bindings (build-parser-let-bindings (Layout-fields layout-desc)))
 						(args (build-ctor-args pfields)))
 					       #`(begin
 						   (struct: structure-name fields #:transparent)
-						   (define:  parser-name : (String -> structure-name)
+						   (define:  parser-name : ((U String Input-Port) -> structure-name)
 						     (λ: ((inp : (U String Input-Port)))
 							 (let: ((inp : Input-Port (if (string? inp)
 										      (open-input-string inp)

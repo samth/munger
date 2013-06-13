@@ -21,7 +21,7 @@
 (provide:
  [read-string-field (Input-Port -> String)]
  [read-integer-field (Input-Port -> Integer)]
- [read-float-field (Input-Port -> Float)])
+ [read-number-field (Input-Port -> Float)])
 
 (: double-quote? (Char -> Boolean))
 (define (double-quote? ch)
@@ -121,6 +121,139 @@
 (define (read-integer-field inp)
   (s->i (read-number-string inp)))
 
-(: read-float-field (Input-Port -> Float))
-(define (read-float-field inp)
+(: read-number-field (Input-Port -> Float))
+(define (read-number-field inp)
   (s->r (read-number-string inp)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;; (provide:
+;;  [parse-csv-line (String -> (Listof String))])
+
+;; (require
+;;  (only-in grip/system/filepath
+;;	  FilePath))
+
+;; (: double-quote? (Char -> Boolean))
+;; (define (double-quote? ch)
+;;   (char=? #\" ch))
+
+;; (: comma-delimiter? (Char -> Boolean))
+;; (define (comma-delimiter? ch)
+;;   (char=? #\, ch))
+
+;; (: whitespace? (Char -> Boolean))
+;; (define (whitespace? ch)
+;;   (or (char=? ch #\space)
+;;       (char=? ch #\tab)))
+
+;; (: consume-delimiter (Input-Port -> Boolean))
+;; (define (consume-delimiter inp)
+;;   (let ((ch (peek-char inp)))
+;;     (if (char? ch)
+;;	(if (comma-delimiter? ch)
+;;	    (begin
+;;	      (read-char inp)
+;;	      #t)
+;;	    #f)
+;;	#f)))
+
+;; (: maybe-consume-whitespace (Input-Port -> Void))
+;; (define (maybe-consume-whitespace inp)
+;;   (let loop ((ch (peek-char inp)))
+;;     (if (eof-object? ch)
+;;	(void)
+;;	(if (whitespace? ch)
+;;	    (begin
+;;	      (read-char inp)
+;;	      (loop (peek-char inp)))
+;;	    (void)))))
+
+;; (: read-quoted-field (Input-Port Output-Port -> String))
+;; (define (read-quoted-field inp outp)
+;;   (read-char inp) ;; toss opening quote
+;;   (let: loop : String ((ch : (U Char EOF) (read-char inp)))
+;;	(if (eof-object? ch)
+;;	    (trim-right (get-output-string outp)) ;; no closing quote, best effort.
+;;	    (if (double-quote? ch)
+;;		(let ((next-ch (peek-char inp)))
+;;		  (if (eof-object? next-ch)
+;;		      (trim-right (get-output-string outp))
+;;		      (if (double-quote? next-ch)
+;;			  (begin
+;;			    (read-char inp)        ;; toss 2nd of "" in a row
+;;			    (display next-ch outp) ;; write out just one "
+;;			    (loop (read-char inp)))
+;;			  (trim-right (get-output-string outp)))))
+;;		(begin
+;;		  (display ch outp)
+;;		  (loop (read-char inp)))))))
+
+;; (: trim-right (String -> String))
+;; (define (trim-right s)
+;;   (let ((idx (string-length s)))
+;;     (if (and (> idx 0)
+;;	     (not (whitespace? (string-ref s (sub1 idx))))) ;; fast path
+;;	s
+;;	(let loop ((idx idx))
+;;	  (if (zero? idx)
+;;	      s
+;;	      (if (whitespace? (string-ref s (sub1 idx)))
+;;		  (loop (sub1 idx))
+;;		  (substring s 0 idx)))))))
+
+;; (: read-unquoted-field (Input-Port Output-Port -> String))
+;; (define (read-unquoted-field inp outp)
+;;   (let: loop : String ((ch : (U Char EOF) (peek-char inp)))
+;;	(if (eof-object? ch)
+;;	    (get-output-string outp)
+;;	    (if (comma-delimiter? ch)
+;;		(trim-right (get-output-string outp))
+;;		(begin
+;;		  (display ch outp)
+;;		  (read-char inp)
+;;		  (loop (peek-char inp)))))))
+
+;; (: read-field (Input-Port -> String))
+;; (define (read-field inp)
+;;   (define outp (open-output-string))
+;;   (let ((ch (peek-char inp)))
+;;     (cond
+;;      ((eof-object? ch)
+;;       (get-output-string outp))
+;;      ((double-quote? ch)
+;;       (read-quoted-field inp outp))
+;;      (else (read-unquoted-field inp outp)))))
+
+;; (: parse-csv-line (String -> (Listof String)))
+;; (define (parse-csv-line line)
+;;   (let ((inp (open-input-string line)))
+;;     (maybe-consume-whitespace inp)
+;;     (let loop ((fields (list (read-field inp))))
+;;       (maybe-consume-whitespace inp)
+;;       (if (consume-delimiter inp)
+;;	  (loop (cons (read-field inp) fields))
+;;	  (reverse fields)))))

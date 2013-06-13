@@ -23,7 +23,7 @@
 
 (require
  (only-in "csv.rkt"
-	  read-float-field
+	  read-number-field
 	  read-integer-field
 	  read-string-field)
  (for-syntax
@@ -68,7 +68,8 @@
 		   ((String) #`(#,name : #,type (read-string-field inp)))
 		   ((Symbol) #`(#,name : #,type (string->symbol (read-string-field inp))))
 		   ((Integer) #`(#,name : #,type (read-integer-field inp)))
-		   (else #`(#,name : #,type (read-string-file inp))))))))
+		   ((Number) #`(#,name : #,type (read-number-field inp)))
+		   (else #`(#,name : #,type (read-string-field inp))))))))
 
  (: build-ctor-args ((Listof Field) -> Syntax))
  (define (build-ctor-args fields)
@@ -85,17 +86,19 @@
 		[(_ parser-name:id structure-name:id layout-name:id (f0:id f1:id ...))
 		 (let ((full-name (syntax-e #'layout-name)))
 		   (with-syntax ((desc-name (format-id #'layout-name "~a-desc" full-name)))
-				(let ((pfields (fields-to-project (syntax-local-value #'desc-name)
-								  (syntax->list #'(f0 f1 ...)))))
+				(let* ((layout-desc (syntax-local-value #'desc-name))
+				       (pfields (fields-to-project layout-desc
+								   (syntax->list #'(f0 f1 ...)))))
 				  (with-syntax ((fields (build-struct-field-syntax pfields))
-						(bindings (build-parser-let-bindings pfields))
+						(bindings (build-parser-let-bindings (Layout-fields layout-desc)))
 						(args (build-ctor-args pfields)))
 					       #`(begin
-						   (struct: structure-name fields)
-						   (define: parser-name : (Input-Port -> structure-name)
-						     (λ: ((inp : Input-Port))
-							 (let: bindings
-							       (structure-name #,@#'args)))))))))]))
+						   (struct: structure-name fields #:transparent)
+						   (define: parser-name : (String -> structure-name)
+						     (λ: ((str : String))
+							 (let: ((inp : Input-Port (open-input-string str)))
+							       (let: bindings
+								     (structure-name #,@#'args))))))))))]))
 
 
 					;(: p (Input-Port -> (Void)))
