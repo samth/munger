@@ -9,7 +9,7 @@
 (require
  (only-in grip/system/filepath
 	  FilePath FilePath->string)
- (only-in grip/control/datahose/datahose
+ (only-in pipe
 	  Tank Stream Continue Done
 	  pump/text-input-port
 	  drain head-n)
