@@ -37,7 +37,8 @@
 
 (: eol-delimiter? (Char -> Boolean))
 (define (eol-delimiter? ch)
-  (or (char=? #\linefeed ch)
+  (or (char=? #\return ch)
+      (char=? #\linefeed ch)
       (char=? #\newline ch)))
 
 (: eol? (Char Input-Port -> Boolean))
