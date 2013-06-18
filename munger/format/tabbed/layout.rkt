@@ -40,32 +40,22 @@
   (define-syntax-class field
     (pattern (fid:id type:id)))
 
-  (: offset : Natural)
-  (define offset 0)
-
   (: field (Listof Field))
   (define fields '())
 
-  (define (field-syntax-with-offsets fs)
+  (define (field-syntax fs)
     (for/list ([f fs])
 	      (syntax-parse f
 			    ((fid:id ftype:id)
-			     (let ((curr-offset offset))
-			       (with-syntax ((tr-type (tr-type-for-field-type (syntax->datum #'ftype)))
-					     (foffset curr-offset)
-					     (fname (syntax->datum #'fid)))
-					    (set! fields (cons (Field (syntax->datum #'fid)
-								      'String
-								      curr-offset
-								      0)
-							       fields))
-					    (set! offset (add1 offset))
-					    #`(Field 'fname 'tr-type foffset 0)))))))
+			     (with-syntax ((tr-type (tr-type-for-field-type (syntax->datum #'ftype)))
+					   (fname (syntax->datum #'fid)))
+					  (set! fields (cons (Field (syntax->datum #'fid) 'String 0 0)
+							     fields))
+					  #`(Field 'fname 'tr-type 0 0))))))
 
   (syntax-parse stx
 		[(_ name:id f0:field f1:field ...)
-		 (with-syntax ((lo  #`(list #,@(field-syntax-with-offsets
-						(syntax->list #'(f0 f1 ...)))))
+		 (with-syntax ((lo  #`(list #,@(field-syntax (syntax->list #'(f0 f1 ...)))))
 			       (desc-name (format-id #'name "~a-desc" (syntax-e #'name))))
 			      (let ((name-id (symbol->string (syntax->datum #'name))))
 				#'(begin

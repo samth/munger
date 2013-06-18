@@ -97,10 +97,8 @@
 						(args (build-ctor-args pfields)))
 					       #`(begin
 						   (struct: structure-name fields #:transparent)
-						   (define:  parser-name : ((U String Input-Port) -> structure-name)
-						     (λ: ((inp : (U String Input-Port)))
-							 (let: ((inp : Input-Port (if (string? inp)
-										      (open-input-string inp)
-										      inp)))
+						   (define:  parser-name : (String -> structure-name)
+						     (λ: ((inp : String))
+							 (let: ((inp : Input-Port (open-input-string inp)))
 							       (let: bindings
 								     (structure-name #,@#'args))))))))))]))

@@ -83,7 +83,7 @@
 
 (define-syntax (define-static-csv-parser stx)
   (syntax-parse stx
-		[(_ parser-name:id structure-name:id layout-name:id (f0:id f1:id ...))
+		[(_ (parser-name:id structure-name:id layout-name:id) (f0:id f1:id ...))
 		 (let ((full-name (syntax-e #'layout-name)))
 		   (with-syntax ((desc-name (format-id #'layout-name "~a-desc" full-name)))
 				(let* ((layout-desc (syntax-local-value #'desc-name))
@@ -99,8 +99,3 @@
 							 (let: ((inp : Input-Port (open-input-string str)))
 							       (let: bindings
 								     (structure-name #,@#'args))))))))))]))
-
-
-					;(: p (Input-Port -> (Void)))
-					;(define (p inp)
-					;  (define x (parse-string

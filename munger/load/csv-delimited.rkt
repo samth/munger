@@ -73,7 +73,7 @@
 		  (loop (read-char inp)))))))
 
 (: trim-right (String -> String))
-(define (trim-right s)  
+(define (trim-right s)
   (let ((idx (string-length s)))
     (if (and (> idx 0)
 	     (not (whitespace? (string-ref s (sub1 idx))))) ;; fast path
