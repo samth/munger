@@ -6,10 +6,11 @@
 		     (Frame (Option Index) -> Void))])
 
 (require
+ racket/match
  (only-in grip/data/format
 	  ~a ~r)
  (only-in "types.rkt"
-          Dim Dim-rows)
+	  Dim Dim-rows)
  (only-in "indexed-series.rkt"
 	  Label)
  (only-in "series-description.rkt"
@@ -18,7 +19,7 @@
 	  Frame new-frame frame-names
 	  Column Columns column-heading column-series
 	  frame-cseries frame-explode frame-dim
-	  FrameDescription FrameDescription-series 
+	  FrameDescription FrameDescription-series
 	  show-frame-description frame-description)
  (only-in "integer-series.rkt"
 	  ISeries ISeries? iseries-ref)
@@ -40,11 +41,11 @@
     (~a (symbol->string heading)
 	#:width WIDTH
 	#:align 'center))
-  
+
   (for ([col cols])
        (let ((heading (column-heading col))
 	     (series  (column-series col)))
-	 (cond 
+	 (cond
 	  ((NSeries? series)
 	   (display (format-heading heading)))
 	  ((CSeries? series)
@@ -52,7 +53,7 @@
 	  ((ISeries? series)
 	   (display (format-heading heading)))
 	  (else
-	   (error 'frame-head "Heading for unknown series types ~s" 
+	   (error 'frame-head "Heading for unknown series types ~s"
 		  (series-type series)))))
        (display " "))
 
@@ -93,7 +94,7 @@
 		((ISeries? a-series)
 		 (display (format-iseries a-series row)))
 		(else
-		 (error 'frame-head "Unknown series types ~s" 
+		 (error 'frame-head "Unknown series types ~s"
 			(series-type a-series)))))
 	     (display " "))
 	(newline)))
@@ -106,7 +107,7 @@
   (define: cols     : Columns (frame-explode frame))
   (define: headings : (Listof Label) (map column-heading cols))
   (define: series   : (Vectorof Series) (list->vector (map column-series cols)))
-  
+
   ;; (show-frame-description (frame-description frame))
 
   (display-heading cols)
@@ -122,10 +123,12 @@
   (define: series   : (Vectorof Series) (list->vector (map column-series cols)))
   (define: row-num  : Index (Dim-rows (frame-dim frame)))
   (define: col-num  : Index (vector-length series))
-  
+
   (: write-frame-row (Index -> Void))
   (define (write-frame-row row)
     (for ([col (in-range col-num)])
+	 (unless (zero? col)
+		 (display "\t" outp))
 	 (let ((a-series (vector-ref series col)))
 	   (cond
 	    ((NSeries? a-series)
@@ -136,20 +139,23 @@
 	    ((ISeries? a-series)
 	     (display (iseries-ref a-series row) outp))
 	    (else
-	     (error 'frame-head "Unknown series types ~s" 
-		    (series-type a-series)))))
-	 (display "\t" outp)))
-  
+	     (error 'frame-head "Unknown series types ~s"
+		    (series-type a-series)))))))
+
   (: write-heading (Columns -> Void))
   (define (write-heading cols)
-    (for ([col cols])
-	 (display (car col) outp)
-	 (display "\t" outp))
-    (displayln "" outp))
-  
+    (match cols
+	   ((list-rest col1 cols)
+	    (display (car col1) outp)
+	    (for ([col cols])
+		 (display "\t" outp)
+		 (display (car col) outp))
+	    (newline outp))
+	   (else (void))))
+
   (when heading
 	(write-heading cols))
-  
+
   (for ([row (in-range row-num)])
        (write-frame-row (assert row index?))
-       (displayln "" outp)))
+       (newline outp)))
