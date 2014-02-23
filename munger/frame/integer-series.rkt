@@ -14,7 +14,6 @@
  [-/is (ISeries ISeries -> ISeries)]
  [*/is (ISeries ISeries -> ISeries)]
  [//is (ISeries ISeries -> ISeries)]
- [bop/is (ISeries ISeries (Fixnum Fixnum -> Fixnum) -> ISeries)]
  [+./is (Fixnum ISeries -> ISeries)]
  [-./is (ISeries Fixnum -> ISeries)]
  [*./is (Fixnum ISeries -> ISeries)]

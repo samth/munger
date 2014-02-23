@@ -64,7 +64,6 @@
 (: alter-schema-columns (Schema (Listof (Pair Symbol ColumnInfo)) -> Schema))
 (define (alter-schema-columns schema metas)
 
-  (: new-cols (HashTable Symbol ColumnInfo))
   (define meta-map
     (let ((hmap ((inst make-hash Symbol ColumnInfo))))
       (for-each (λ: ((meta : (Pair Symbol ColumnInfo)))

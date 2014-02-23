@@ -10,7 +10,6 @@
  [-/ns (NSeries NSeries -> NSeries)]
  [*/ns (NSeries NSeries -> NSeries)]
  [//ns (NSeries NSeries -> NSeries)]
- [bop/ns (NSeries NSeries (Float Float -> Float) -> NSeries)]
  [+./ns (Float NSeries -> NSeries)]
  [-./ns (NSeries Float -> NSeries)]
  [*./ns (Float NSeries -> NSeries)]
@@ -19,8 +18,7 @@
 (provide
  flvector-print
  (struct-out NSeries)
- mkNSeries map/ns
- map/ns)
+ mkNSeries)
 
 (require
  racket/unsafe/ops

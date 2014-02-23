@@ -26,7 +26,7 @@
   (call C)
   (web C))
 
-(define-static-tabbed-parser (sales-parser Sales sales-layout)
+(define-static-tabbed-parser ( sales-parser Sales sales-layout)
   (date web))
 
 (define-fixed-layout orderline
