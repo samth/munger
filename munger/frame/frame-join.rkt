@@ -277,7 +277,7 @@
 
 ;; Append common columns
 (: frame-append (Frame Frame [#:col (Listof Symbol)] -> Frame))
-(define (frame-append fa fb #:cols [cols '()])
+(define (frame-append fa fb #:col [cols '()])
 
   (define: cols-a    : (Setof Label) (list->set (frame-names fa)))
   (define: cols-b    : (Setof Label) (list->set (frame-names fb)))
